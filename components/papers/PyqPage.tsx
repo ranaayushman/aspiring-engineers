@@ -62,8 +62,8 @@ export default function PyqPage({
   useEffect(() => {
     const fetchPapers = async () => {
       try {
-        const data = await getPapers({ category });
-        setPapers(data);
+        const data = await getPapers({ category, limit: 100 });
+        setPapers(data.filter((p) => p.type === "with-solution"));
       } catch (error) {
         console.error("Failed to load papers", error);
       } finally {
