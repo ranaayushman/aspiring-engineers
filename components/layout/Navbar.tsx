@@ -823,8 +823,38 @@ export default function Navbar(): JSX.Element {
         </div>
 
         <nav aria-label="Mobile menu" className="overflow-auto max-h-[78vh]">
-          <div className="flex flex-col space-y-0">
+          <div className="flex flex-col space-y-0 mb-6">
             {renderMobileMenu(menuItems)}
+          </div>
+          <div className="mt-4 border-t border-bg-700 pt-6 px-3">
+            {isAuthenticated ? (
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  logout();
+                }}
+                className="w-full px-4 py-3 rounded-xl border border-bg-700 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors flex items-center justify-center gap-2"
+              >
+                Logout
+              </button>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="w-full px-4 py-3 rounded-xl border border-bg-700 text-center text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileOpen(false)}
+                  className="w-full px-4 py-3 rounded-xl bg-[#2596be] text-center text-white text-sm font-semibold hover:bg-[#1e7ca0] transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
         </nav>
       </div>

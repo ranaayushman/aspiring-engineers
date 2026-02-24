@@ -204,10 +204,9 @@ export default function OTPModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => {
-        // Close on backdrop click only if not loading or success
-        if (e.target === e.currentTarget && !loading && !success) {
-          onClose();
-        }
+        // Intentionally do nothing on backdrop click for OTP so users don't accidentally
+        // close the modal when switching tabs to check their email for the code.
+        // Only the X button should trigger onClose.
       }}
     >
       <div

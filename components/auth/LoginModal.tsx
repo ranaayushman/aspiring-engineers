@@ -67,7 +67,6 @@ export default function LoginModal({ isOpen, onClose, redirectPath }: LoginModal
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
       />
 
       {/* Modal Content */}
