@@ -6,11 +6,9 @@ import { logger } from './logger';
  * @returns Cashfree instance
  */
 export const initializeCashfree = async () => {
-  const cashfreeEnv = process.env.NEXT_PUBLIC_CASHFREE_ENV || 'sandbox';
-  
   try {
     const cashfree = await load({
-      mode: cashfreeEnv as 'sandbox' | 'production',
+      mode: 'production',
     });
     return cashfree;
   } catch (error) {
