@@ -226,7 +226,7 @@ export default function RegisterPage() {
                       ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                       : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                   }`}
-                  placeholder="John Doe"
+                  placeholder="Enter Full Name"
                 />
               </div>
 
@@ -250,7 +250,7 @@ export default function RegisterPage() {
                       ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                       : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                   }`}
-                  placeholder="your@email.com"
+                  placeholder="Enter Email Address"
                 />
               </div>
             </div>
@@ -278,7 +278,7 @@ export default function RegisterPage() {
                         ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                         : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                     }`}
-                    placeholder="••••••••"
+                    placeholder="Enter Password"
                   />
                   <button
                     type="button"
@@ -325,7 +325,7 @@ export default function RegisterPage() {
                         ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                         : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                     }`}
-                    placeholder="••••••••"
+                    placeholder="Enter Password"
                   />
                   <button
                     type="button"
@@ -475,7 +475,7 @@ export default function RegisterPage() {
                       ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                       : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)]"
                   }`}
-                  placeholder={new Date().getFullYear().toString()}
+                  placeholder="Enter Target Year"
                 />
               </div>
             </div>

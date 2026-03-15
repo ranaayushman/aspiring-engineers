@@ -182,7 +182,7 @@ export default function ContactPage() {
                         value={formData.name}
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300 hover:border-[var(--color-brand)]/50 focus:ring-2 focus:ring-[var(--color-brand)] focus:border-transparent focus:shadow-[0_0_15px_rgba(37,150,190,0.15)] outline-none"
-                        placeholder="John Doe"
+                        placeholder="Please Enter your Full Name"
                       />
                     </div>
 
@@ -201,7 +201,7 @@ export default function ContactPage() {
                         value={formData.email}
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300 hover:border-[var(--color-brand)]/50 focus:ring-2 focus:ring-[var(--color-brand)] focus:border-transparent focus:shadow-[0_0_15px_rgba(37,150,190,0.15)] outline-none"
-                        placeholder="john@example.com"
+                        placeholder="Email Address"
                       />
                     </div>
                   </div>
@@ -221,7 +221,7 @@ export default function ContactPage() {
                         value={formData.phone}
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all duration-300 hover:border-[var(--color-brand)]/50 focus:ring-2 focus:ring-[var(--color-brand)] focus:border-transparent focus:shadow-[0_0_15px_rgba(37,150,190,0.15)] outline-none"
-                        placeholder="+91 1234567890"
+                        placeholder="Enter Contact Details"
                       />
                     </div>
 

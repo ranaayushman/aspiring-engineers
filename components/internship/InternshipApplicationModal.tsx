@@ -160,7 +160,7 @@ export default function InternshipApplicationModal({
                     value={formData.name}
                     onChange={handleChange}
                     className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-brand)] focus:border-transparent outline-hidden"
-                    placeholder="John Doe"
+                    placeholder="Enter Full Name"
                   />
                 </div>
                 <div>
@@ -174,7 +174,7 @@ export default function InternshipApplicationModal({
                     value={formData.phone}
                     onChange={handleChange}
                     className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-brand)] focus:border-transparent outline-hidden"
-                    placeholder="+91 9876543210"
+                    placeholder="9876543210"
                   />
                 </div>
               </div>
@@ -209,7 +209,7 @@ export default function InternshipApplicationModal({
                     value={formData.fathersName}
                     onChange={handleChange}
                     className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--color-brand)] focus:border-transparent outline-hidden"
-                    placeholder="Parent's Name"
+                    placeholder="Enter Father's Name"
                   />
                 </div>
                 <div>
