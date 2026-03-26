@@ -82,8 +82,8 @@ const journeyStages = [
   },
 ];
 
-// Typewriter component
-function TypewriterText({
+// Smooth Word Reveal component for better performance and premium feel
+function SmoothWordReveal({
   text,
   darkMode,
   delay = 0,
@@ -92,41 +92,55 @@ function TypewriterText({
   darkMode: boolean;
   delay?: number;
 }) {
-  const ref = useRef<HTMLParagraphElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
-  const [displayed, setDisplayed] = useState("");
-  const [started, setStarted] = useState(false);
+  const words = text.split(" ");
+  const container = {
+    hidden: { opacity: 0 },
+    visible: (i = 1) => ({
+      opacity: 1,
+      transition: { staggerChildren: 0.08, delayChildren: delay * i },
+    }),
+  };
 
-  useEffect(() => {
-    if (!isInView) return;
-    const timeout = setTimeout(() => setStarted(true), delay * 1000);
-    return () => clearTimeout(timeout);
-  }, [isInView, delay]);
-
-  useEffect(() => {
-    if (!started) return;
-    setDisplayed("");
-    let i = 0;
-    const interval = setInterval(() => {
-      i++;
-      setDisplayed(text.slice(0, i));
-      if (i >= text.length) clearInterval(interval);
-    }, 22);
-    return () => clearInterval(interval);
-  }, [started, text]);
+  const child = {
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: {
+        type: "spring" as const,
+        damping: 12,
+        stiffness: 100,
+      },
+    },
+    hidden: {
+      opacity: 0,
+      y: 10,
+      filter: "blur(4px)",
+      transition: {
+        type: "spring" as const,
+        damping: 12,
+        stiffness: 100,
+      },
+    },
+  };
 
   return (
-    <p
-      ref={ref}
+    <motion.div
+      style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem" }}
+      variants={container}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
       className={`text-sm md:text-base leading-relaxed min-h-[4.5rem] ${
         darkMode ? "text-gray-300" : "text-gray-600"
       }`}
     >
-      {displayed}
-      {started && displayed.length < text.length && (
-        <span className="inline-block w-0.5 h-4 ml-0.5 align-middle bg-current animate-pulse" />
-      )}
-    </p>
+      {words.map((word, index) => (
+        <motion.span key={index} variants={child} style={{ display: "inline-block" }}>
+          {word}
+        </motion.span>
+      ))}
+    </motion.div>
   );
 }
 
@@ -210,7 +224,7 @@ export default function Features() {
           return (
             <motion.div
               key={stage.stage}
-              style={{ y: cardY }}
+              style={{ y: cardY, willChange: "transform" }}
               initial={{ opacity: 0, x: isEven ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.3 }}
@@ -330,8 +344,8 @@ export default function Features() {
                       {stage.title}
                     </h4>
 
-                    {/* Typewriter Description — replaces the loading bar animation */}
-                    <TypewriterText
+                    {/* Smooth Word Reveal Description — replaces the typewriter animation */}
+                    <SmoothWordReveal
                       text={stage.description}
                       darkMode={darkMode}
                       delay={0.3 + index * 0.1}
