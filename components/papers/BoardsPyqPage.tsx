@@ -67,7 +67,7 @@ export default function BoardsPyqPage({
     classLevel,
     paperType,
     board: selectedBoard || undefined,
-    subject: selectedSubject || undefined,
+    subject: selectedSubject ? selectedSubject.toLowerCase() : undefined,
   });
   const [darkMode, setDarkMode] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);

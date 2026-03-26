@@ -112,17 +112,16 @@ export default function Hero() {
         </h1>
 
         <p
-          className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-6 transition-colors ${
-            darkMode ? "text-gray-300" : "text-gray-600"
-          }`}
+          className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-6 transition-colors ${darkMode ? "text-gray-300" : "text-gray-600"
+            }`}
         >
-          From School to career - One platform , one clear direction
+          From School to Career — One Platform, One Clear Direction
+
         </p>
 
         <p
-          className={`text-lg max-w-2xl mx-auto mb-10 transition-colors ${
-            darkMode ? "text-gray-400" : "text-gray-500"
-          }`}
+          className={`text-lg max-w-2xl mx-auto mb-10 transition-colors ${darkMode ? "text-gray-400" : "text-gray-500"
+            }`}
         >
           From Preparation to Performance
         </p>
