@@ -15,10 +15,35 @@ if (!process.env.NEXT_PUBLIC_API_URL) {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 const MAX_REFRESH_RETRIES = 3;
 
+const getTokenFromCookies = (): string | null => {
+  if (typeof document === "undefined") return null;
+
+  const cookieNames = ["token", "accessToken", "authToken", "auth_token"];
+  const cookieMap = document.cookie
+    .split(";")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .reduce<Record<string, string>>((acc, pair) => {
+      const separatorIndex = pair.indexOf("=");
+      if (separatorIndex === -1) return acc;
+      const key = pair.slice(0, separatorIndex);
+      const value = pair.slice(separatorIndex + 1);
+      acc[key] = decodeURIComponent(value);
+      return acc;
+    }, {});
+
+  for (const name of cookieNames) {
+    if (cookieMap[name]) return cookieMap[name];
+  }
+
+  return null;
+};
+
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -85,7 +110,7 @@ const refreshAuthToken = async (): Promise<string | null> => {
 // Request interceptor - add auth token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = tokenManager.getAuthToken();
+    const token = tokenManager.getAuthToken() || getTokenFromCookies();
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;

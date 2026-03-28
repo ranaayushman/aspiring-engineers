@@ -1,4 +1,5 @@
 import apiClient, { handleApiError } from "@/lib/api-client";
+import { tokenManager } from "@/lib/utils/tokenManager";
 import {
   ContactFreelancerPayload,
   CreateFreelanceProfilePayload,
@@ -35,6 +36,11 @@ const extractData = <T>(payload: ApiEnvelope<T> | T): T => {
   return payload as T;
 };
 
+const getAuthHeaders = (): Record<string, string> => {
+  const token = tokenManager.getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const freelanceService = {
   createFreelanceProfile: async (
     payload: CreateFreelanceProfilePayload,
@@ -43,6 +49,9 @@ export const freelanceService = {
       const response = await apiClient.post<ApiEnvelope<FreelanceProfile>>(
         "/freelance/create",
         payload,
+        {
+          headers: getAuthHeaders(),
+        },
       );
       return extractData(response.data);
     } catch (error) {

@@ -12,6 +12,8 @@ export type FreelanceDomain =
   | "data-scientist"
   | "qa-engineer";
 
+export type FreelanceWorkMode = "remote" | "hybrid" | "onsite";
+
 export type FreelanceStatus =
   | "submitted"
   | "under-review"
@@ -32,6 +34,11 @@ export interface CreateFreelanceProfilePayload {
   cvFileBase64: string;
   yearsOfExperience?: number;
   skills?: string[];
+  expectedHourlyRate?: number;
+  availableHoursPerDay?: number;
+  availableDaysPerWeek?: number;
+  preferredWorkMode?: FreelanceWorkMode;
+  availabilityNotes?: string;
 }
 
 export interface UpdateFreelanceProfileStatusPayload {
@@ -61,6 +68,11 @@ export interface FreelanceProfile {
   cvUrl?: string;
   yearsOfExperience?: number;
   skills?: string[];
+  expectedHourlyRate?: number;
+  availableHoursPerDay?: number;
+  availableDaysPerWeek?: number;
+  preferredWorkMode?: FreelanceWorkMode;
+  availabilityNotes?: string;
   adminNotes?: string;
   rejectionReason?: string;
   createdAt?: string;

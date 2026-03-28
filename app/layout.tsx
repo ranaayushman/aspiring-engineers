@@ -36,7 +36,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {GA_ID && (
           <>
             <Script
@@ -55,11 +57,6 @@ export default function RootLayout({
             </Script>
           </>
         )}
-      </head>
-
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
         {GA_ID && <Analytics />}
         <SWRProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

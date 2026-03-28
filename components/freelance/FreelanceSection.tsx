@@ -10,6 +10,7 @@ import {
   FreelanceDomain,
   FreelanceProfile,
   FreelanceStatus,
+  FreelanceWorkMode,
 } from "@/types";
 
 const FREELANCE_DOMAINS: Array<{ value: FreelanceDomain; label: string }> = [
@@ -27,6 +28,12 @@ const FREELANCE_DOMAINS: Array<{ value: FreelanceDomain; label: string }> = [
   { value: "qa-engineer", label: "QA Engineer" },
 ];
 
+const FREELANCE_WORK_MODES: Array<{ value: FreelanceWorkMode; label: string }> = [
+  { value: "remote", label: "Remote" },
+  { value: "hybrid", label: "Hybrid" },
+  { value: "onsite", label: "On-site" },
+];
+
 type TabKey = "apply" | "my-profile" | "edit";
 
 const emptyForm: CreateFreelanceProfilePayload = {
@@ -41,6 +48,11 @@ const emptyForm: CreateFreelanceProfilePayload = {
   cvFileBase64: "",
   yearsOfExperience: undefined,
   skills: [],
+  expectedHourlyRate: undefined,
+  availableHoursPerDay: undefined,
+  availableDaysPerWeek: undefined,
+  preferredWorkMode: "remote",
+  availabilityNotes: "",
 };
 
 const statusStyles: Record<FreelanceStatus, string> = {
@@ -121,6 +133,24 @@ const buildValidationErrors = (
     errors.push("Years of experience must be 70 or less.");
   }
 
+  if (payload.expectedHourlyRate !== undefined && payload.expectedHourlyRate <= 0) {
+    errors.push("Expected hourly rate must be greater than 0.");
+  }
+
+  if (
+    payload.availableHoursPerDay !== undefined &&
+    (payload.availableHoursPerDay < 1 || payload.availableHoursPerDay > 24)
+  ) {
+    errors.push("Available hours per day must be between 1 and 24.");
+  }
+
+  if (
+    payload.availableDaysPerWeek !== undefined &&
+    (payload.availableDaysPerWeek < 1 || payload.availableDaysPerWeek > 7)
+  ) {
+    errors.push("Available days per week must be between 1 and 7.");
+  }
+
   if (!isValidUrl(payload.portfolioUrl || "")) {
     errors.push("Portfolio URL must be a valid URL.");
   }
@@ -158,7 +188,7 @@ const fileToBase64 = (file: File): Promise<string> => {
 
 export default function FreelanceSection() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const [darkMode, setDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>("apply");
@@ -196,6 +226,8 @@ export default function FreelanceSection() {
 
   const applyCvInputRef = useRef<HTMLInputElement | null>(null);
   const editCvInputRef = useRef<HTMLInputElement | null>(null);
+  const applyMessageRef = useRef<HTMLDivElement | null>(null);
+  const editMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const update = () => {
@@ -211,6 +243,24 @@ export default function FreelanceSection() {
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    setApplyForm((prev) => ({
+      ...prev,
+      fullName: prev.fullName || user.name || "",
+      email: prev.email || user.email || "",
+      phoneNumber: prev.phoneNumber || user.phone || "",
+    }));
+
+    setEditForm((prev) => ({
+      ...prev,
+      fullName: prev.fullName || user.name || "",
+      email: prev.email || user.email || "",
+      phoneNumber: prev.phoneNumber || user.phone || "",
+    }));
+  }, [user]);
 
   const ensureAuthenticated = useCallback((): boolean => {
     if (!isAuthenticated) {
@@ -245,6 +295,25 @@ export default function FreelanceSection() {
             ? profile.yearsOfExperience
             : undefined,
         skills: (profile.skills as string[]) || [],
+        expectedHourlyRate:
+          typeof profile.expectedHourlyRate === "number"
+            ? profile.expectedHourlyRate
+            : undefined,
+        availableHoursPerDay:
+          typeof profile.availableHoursPerDay === "number"
+            ? profile.availableHoursPerDay
+            : undefined,
+        availableDaysPerWeek:
+          typeof profile.availableDaysPerWeek === "number"
+            ? profile.availableDaysPerWeek
+            : undefined,
+        preferredWorkMode:
+          profile.preferredWorkMode === "remote" ||
+          profile.preferredWorkMode === "hybrid" ||
+          profile.preferredWorkMode === "onsite"
+            ? profile.preferredWorkMode
+            : "remote",
+        availabilityNotes: (profile.availabilityNotes as string) || "",
       });
 
       setEditSkillsInput(
@@ -270,10 +339,15 @@ export default function FreelanceSection() {
   ) => {
     const { name, value } = event.target;
 
-    if (name === "yearsOfExperience") {
+    if (
+      name === "yearsOfExperience" ||
+      name === "expectedHourlyRate" ||
+      name === "availableHoursPerDay" ||
+      name === "availableDaysPerWeek"
+    ) {
       setApplyForm((prev) => ({
         ...prev,
-        yearsOfExperience: value ? Number(value) : undefined,
+        [name]: value ? Number(value) : undefined,
       }));
       return;
     }
@@ -291,10 +365,15 @@ export default function FreelanceSection() {
   ) => {
     const { name, value } = event.target;
 
-    if (name === "yearsOfExperience") {
+    if (
+      name === "yearsOfExperience" ||
+      name === "expectedHourlyRate" ||
+      name === "availableHoursPerDay" ||
+      name === "availableDaysPerWeek"
+    ) {
       setEditForm((prev) => ({
         ...prev,
-        yearsOfExperience: value ? Number(value) : undefined,
+        [name]: value ? Number(value) : undefined,
       }));
       return;
     }
@@ -350,7 +429,10 @@ export default function FreelanceSection() {
 
   const submitApply = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!ensureAuthenticated()) return;
+    if (!ensureAuthenticated()) {
+      setApplyError("Please login to submit your freelance profile.");
+      return;
+    }
 
     setApplyLoading(true);
     setApplySuccess("");
@@ -365,6 +447,7 @@ export default function FreelanceSection() {
       portfolioUrl: applyForm.portfolioUrl?.trim() || undefined,
       githubUrl: applyForm.githubUrl?.trim() || undefined,
       linkedinUrl: applyForm.linkedinUrl?.trim() || undefined,
+      availabilityNotes: applyForm.availabilityNotes?.trim() || undefined,
       skills: normalizeSkills(applySkillsInput),
     };
 
@@ -372,6 +455,10 @@ export default function FreelanceSection() {
     setApplyValidationErrors(validationErrors);
 
     if (validationErrors.length > 0) {
+      setApplyError("Please fix the highlighted validation errors and try again.");
+      requestAnimationFrame(() => {
+        applyMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
       setApplyLoading(false);
       return;
     }
@@ -393,7 +480,10 @@ export default function FreelanceSection() {
 
   const submitEdit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!ensureAuthenticated()) return;
+    if (!ensureAuthenticated()) {
+      setEditError("Please login to update your freelance profile.");
+      return;
+    }
 
     setEditLoading(true);
     setEditSuccess("");
@@ -408,6 +498,7 @@ export default function FreelanceSection() {
       portfolioUrl: editForm.portfolioUrl?.trim() || undefined,
       githubUrl: editForm.githubUrl?.trim() || undefined,
       linkedinUrl: editForm.linkedinUrl?.trim() || undefined,
+      availabilityNotes: editForm.availabilityNotes?.trim() || undefined,
       skills: normalizeSkills(editSkillsInput),
     };
 
@@ -415,6 +506,10 @@ export default function FreelanceSection() {
     setEditValidationErrors(validationErrors);
 
     if (validationErrors.length > 0) {
+      setEditError("Please fix the highlighted validation errors and try again.");
+      requestAnimationFrame(() => {
+        editMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
       setEditLoading(false);
       return;
     }
@@ -490,6 +585,7 @@ export default function FreelanceSection() {
 
           {activeTab === "apply" && (
             <form onSubmit={submitApply} className="space-y-4">
+              <div ref={applyMessageRef} />
               {renderAlert("success", applySuccess)}
               {renderAlert("error", applyError)}
 
@@ -583,6 +679,47 @@ export default function FreelanceSection() {
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
                 />
                 <input
+                  type="number"
+                  name="expectedHourlyRate"
+                  min={1}
+                  value={applyForm.expectedHourlyRate ?? ""}
+                  onChange={onApplyInputChange}
+                  placeholder="Expected Hourly Rate (INR, optional)"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                />
+                <input
+                  type="number"
+                  name="availableHoursPerDay"
+                  min={1}
+                  max={24}
+                  value={applyForm.availableHoursPerDay ?? ""}
+                  onChange={onApplyInputChange}
+                  placeholder="Available Hours Per Day (optional)"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                />
+                <input
+                  type="number"
+                  name="availableDaysPerWeek"
+                  min={1}
+                  max={7}
+                  value={applyForm.availableDaysPerWeek ?? ""}
+                  onChange={onApplyInputChange}
+                  placeholder="Available Days Per Week (optional)"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                />
+                <select
+                  name="preferredWorkMode"
+                  value={applyForm.preferredWorkMode || "remote"}
+                  onChange={onApplyInputChange}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                >
+                  {FREELANCE_WORK_MODES.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <input
                   value={applySkillsInput}
                   onChange={(event) => setApplySkillsInput(event.target.value)}
                   placeholder="Skills (comma separated, optional)"
@@ -590,8 +727,19 @@ export default function FreelanceSection() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <textarea
+                name="availabilityNotes"
+                value={applyForm.availabilityNotes || ""}
+                onChange={onApplyInputChange}
+                rows={3}
+                placeholder="Availability Notes (optional)"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+              />
+
+              <div className="space-y-3">
+                <label
+                  className={`block text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   CV PDF Upload
                 </label>
                 <input
@@ -605,7 +753,7 @@ export default function FreelanceSection() {
                   type="button"
                   onClick={() => applyCvInputRef.current?.click()}
                   disabled={applyCvUploading}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-60"
+                  className="inline-flex mt-1 items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-60"
                 >
                   {applyCvUploading ? (
                     <>
@@ -619,6 +767,9 @@ export default function FreelanceSection() {
                     </>
                   )}
                 </button>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Upload your CV in PDF format.
+                </p>
                 {applyCvName && (
                   <p className="text-xs text-emerald-600 dark:text-emerald-300">
                     Selected: {applyCvName}
@@ -708,6 +859,10 @@ export default function FreelanceSection() {
                     <div>Phone: {myProfile.phoneNumber}</div>
                     <div>Domain: {myProfile.domain}</div>
                     <div>Experience: {myProfile.yearsOfExperience ?? "-"} years</div>
+                    <div>Expected Rate: {myProfile.expectedHourlyRate ?? "-"} INR/hr</div>
+                    <div>Availability: {myProfile.availableHoursPerDay ?? "-"} hrs/day</div>
+                    <div>Days/Week: {myProfile.availableDaysPerWeek ?? "-"}</div>
+                    <div>Work Mode: {myProfile.preferredWorkMode ?? "-"}</div>
                     <div>Created: {formatDate(myProfile.createdAt)}</div>
                     <div>Updated: {formatDate(myProfile.updatedAt)}</div>
                   </div>
@@ -733,6 +888,15 @@ export default function FreelanceSection() {
                     </div>
                   )}
 
+                  {myProfile.availabilityNotes && (
+                    <div className="text-sm">
+                      <p className="font-semibold mb-1">Availability Notes</p>
+                      <p className={darkMode ? "text-gray-300" : "text-gray-700"}>
+                        {myProfile.availabilityNotes}
+                      </p>
+                    </div>
+                  )}
+
                   {(myProfile.cvUrl || myProfile.cvFileBase64) && (
                     <a
                       href={
@@ -755,6 +919,7 @@ export default function FreelanceSection() {
 
           {activeTab === "edit" && (
             <form onSubmit={submitEdit} className="space-y-4">
+              <div ref={editMessageRef} />
               {renderAlert("success", editSuccess)}
               {renderAlert("error", editError)}
 
@@ -854,6 +1019,47 @@ export default function FreelanceSection() {
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
                 />
                 <input
+                  type="number"
+                  name="expectedHourlyRate"
+                  min={1}
+                  value={editForm.expectedHourlyRate ?? ""}
+                  onChange={onEditInputChange}
+                  placeholder="Expected Hourly Rate (INR)"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                />
+                <input
+                  type="number"
+                  name="availableHoursPerDay"
+                  min={1}
+                  max={24}
+                  value={editForm.availableHoursPerDay ?? ""}
+                  onChange={onEditInputChange}
+                  placeholder="Available Hours Per Day"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                />
+                <input
+                  type="number"
+                  name="availableDaysPerWeek"
+                  min={1}
+                  max={7}
+                  value={editForm.availableDaysPerWeek ?? ""}
+                  onChange={onEditInputChange}
+                  placeholder="Available Days Per Week"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                />
+                <select
+                  name="preferredWorkMode"
+                  value={editForm.preferredWorkMode || "remote"}
+                  onChange={onEditInputChange}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                >
+                  {FREELANCE_WORK_MODES.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <input
                   value={editSkillsInput}
                   onChange={(event) => setEditSkillsInput(event.target.value)}
                   placeholder="Skills (comma separated)"
@@ -861,8 +1067,19 @@ export default function FreelanceSection() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+              <textarea
+                name="availabilityNotes"
+                value={editForm.availabilityNotes || ""}
+                onChange={onEditInputChange}
+                rows={3}
+                placeholder="Availability Notes"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+              />
+
+              <div className="space-y-3">
+                <label
+                  className={`block text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                >
                   CV PDF Upload (required for update)
                 </label>
                 <input
@@ -876,7 +1093,7 @@ export default function FreelanceSection() {
                   type="button"
                   onClick={() => editCvInputRef.current?.click()}
                   disabled={editCvUploading}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-60"
+                  className="inline-flex mt-1 items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-60"
                 >
                   {editCvUploading ? (
                     <>
@@ -890,6 +1107,9 @@ export default function FreelanceSection() {
                     </>
                   )}
                 </button>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Upload your CV in PDF format.
+                </p>
                 {editCvName && (
                   <p className="text-xs text-emerald-600 dark:text-emerald-300">
                     Selected: {editCvName}
