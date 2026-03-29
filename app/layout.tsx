@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   description:
     "Comprehensive preparation platform for JEE, NEET, WBJEE and other competitive exams",
   icons: {
-    icon: "/logo.svg",
-    apple: "/logo.svg",
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
   },
 };
 

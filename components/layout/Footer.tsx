@@ -194,7 +194,7 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <NextImage
-                src="/logo.svg"
+                src="/favicon.svg"
                 alt="Aspiring Engineers"
                 width={70}
                 height={70}

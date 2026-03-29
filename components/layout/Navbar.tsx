@@ -625,7 +625,7 @@ export default function Navbar(): JSX.Element {
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo.svg"
+              src="/favicon.svg"
               alt="Aspiring Engineers"
               width={60}
               height={60}
@@ -783,7 +783,7 @@ export default function Navbar(): JSX.Element {
             className="flex items-center"
           >
             <Image
-              src="/logo.svg"
+              src="/favicon.svg"
               alt="Aspiring Engineers"
               width={48}
               height={48}
